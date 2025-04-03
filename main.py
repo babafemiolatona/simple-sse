@@ -10,15 +10,13 @@ app = FastAPI()
 origins = ["*"]
 
 # Configure middleware
-middleware = [
-    Middleware(
-        CORSMiddleware,
-        allow_origins=origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    ),
-]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 process_queue = asyncio.Queue()
@@ -64,4 +62,4 @@ async def sse_task_test(request: Request):
     request.state.background_tasks = task
     
     # Return streaming response
-    return EventSourceResponse(sse_generator())
+    return EventSourceResponse(sse_generator(), media_type="text/event-stream")

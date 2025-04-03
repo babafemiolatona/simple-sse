@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #events { border: 1px solid #ccc; padding: 10px; background: #f9f9f9; max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+    <h2>Server-Sent Events (SSE) Test</h2>
+    <button onclick="startSSE()">Start SSE</button>
+    <button onclick="stopSSE()">Stop SSE</button>
+
+    <div id="events"><p><strong>Event Log:</strong></p></div>
+
+    <script>
+        let eventSource = null;
+
+        function startSSE() {
+            if (eventSource) {
+                console.log("SSE already started.");
+                return;
+            }
+
+            eventSource = new EventSource("http://localhost:8080/sse-test");
+
+            eventSource.addEventListener("progress", (event) => {
+                logEvent(event.data, "black");
+            });
+
+            eventSource.addEventListener("success", (event) => {
+                logEvent(event.data, "green");
+            });
+
+            eventSource.addEventListener("complete", (event) => {
+                logEvent(event.data, "blue");
+                stopSSE();
+            });
+
+            eventSource.onerror = () => {
+                logEvent("SSE Connection Closed", "red");
+                stopSSE();
+            };
+        }
+
+        function stopSSE() {
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
+            }
+        }
+
+        function logEvent(message, color) {
+            const eventDiv = document.getElementById("events");
+            const p = document.createElement("p");
+            p.style.color = color;
+            p.textContent = message;
+            eventDiv.appendChild(p);
+        }
+    </script>
+
+</body>
+</html>
